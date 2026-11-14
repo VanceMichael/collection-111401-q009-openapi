@@ -12,6 +12,11 @@ async function controlled(provider, change) {
   assert.equal(response.status, 200);
 }
 
+test('接口说明完整声明所有模板路径参数',async()=>{
+ const provider=await createProvider();
+ try{for(const address of ['/openapi.json','/attachments-api.json']){const document=await(await fetch(provider.base+address)).json();for(const [path,methods]of Object.entries(document.paths)){for(const match of path.matchAll(/\{([^}]+)\}/g)){const definition=methods.get.parameters.find(parameter=>parameter.in==='path'&&parameter.name===match[1]);assert.equal(definition.required,true);assert.equal(definition.schema.type,'string');}}}}finally{await provider.close();}
+});
+
 test('现有业务入口真实收存来源资料并可重新打开', async () => {
   const provider = await createProvider();
   const directory = await mkdtemp(join(tmpdir(), 'business-'));
