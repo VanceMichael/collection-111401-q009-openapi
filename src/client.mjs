@@ -11,8 +11,15 @@ export async function capture(url, directory, options = {}) {
     chunks.push(chunk);
   }
   const bytes = Buffer.concat(chunks);
-  const source = { url, status: response.status, type: response.headers.get('content-type'), etag: response.headers.get('etag') };
+  const headers = Object.fromEntries(response.headers);
+  const source = {
+    url,
+    status: response.status,
+    type: response.headers.get('content-type'),
+    etag: response.headers.get('etag'),
+    headers,
+  };
   const archive = new Archive(directory);
   const receipt = await archive.save(bytes, source);
-  return { bytes, receipt };
+  return { bytes, receipt, headers, status: response.status };
 }
